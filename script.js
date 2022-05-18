@@ -3,7 +3,7 @@ const c = canvas.getContext('2d')
 canvas.width = innerWidth
 canvas.height = innerHeight
 
-//  
+//  "Hallo"
 
 class Boundary{
     static width = 40
