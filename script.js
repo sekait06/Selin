@@ -4,6 +4,7 @@ canvas.width = innerWidth
 canvas.height = innerHeight
 
 //  "Hallo"
+// "Hallo again"
 
 class Boundary{
     static width = 40
