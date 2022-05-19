@@ -58,7 +58,7 @@ const player = new Player({
         x : 0,
         y : 0
     }
-
+    // "Comment"
 }) 
 
 const keys = {
