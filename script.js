@@ -5,6 +5,7 @@ canvas.height = innerHeight
 
 //  "Hallo"
 // "Hallo again"
+// "Mason was here ( ͠° ͜ʖ ͠° )"
 
 class Boundary{
     static width = 40
