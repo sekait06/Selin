@@ -48,6 +48,35 @@ class Player{
     }
 }
 
+class Ghost{
+    static speed = 2
+    constructor({
+        position, velocity, color = 'red'
+    }){
+        this.position = position
+        this.velocity = velocity
+        this.radius = 15
+        this.color = color
+        this.prevCollisions = []
+        this.speed = 2
+    }
+
+    draw(){
+        c.beginPath()
+        c.arc(this.position.x , this.position.y , this.radius, 0 , Math.PI * 2)
+        c.fillStyle = this.color
+        c.fill()
+        c.closePath()
+    } 
+
+    update(){
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+    }
+}
+
+
 class Pellet{
     constructor({
         position
@@ -67,6 +96,30 @@ class Pellet{
 
 const pellets = []
 const boundaries = []
+const ghosts  = [
+    new Ghost({
+        position: {
+            x : Boundary.width * 6 + Boundary.width / 2,
+            y : Boundary.height + Boundary.height /2
+        },
+        velocity: {
+            x: Ghost.speed,
+            y: 0
+        }
+    }),
+
+    new Ghost({
+        position: {
+            x : Boundary.width * 6 + Boundary.width / 2,
+            y : Boundary.height * 3 + Boundary.height /2
+        },
+        velocity: {
+            x: Ghost.speed,
+            y: 0
+        },
+        color: 'pink'
+    })
+]
 
 const player = new Player({
     position: {
@@ -321,23 +374,24 @@ function circleCollidesWithRectangle({
     circle,
     rectangle
 }) {
+    const padding = Boundary.width / 2 - circle.radius - 1
     return ( 
         circle.position.y - circle.radius + circle.velocity.y 
         <= 
-        rectangle.position.y + rectangle.height && circle.position.x + circle.radius + circle.velocity.x 
+        rectangle.position.y + rectangle.height + padding && circle.position.x + circle.radius + circle.velocity.x 
         >= 
-        rectangle.position.x && circle.position.y + circle.radius + circle.velocity.y 
+        rectangle.position.x - padding && circle.position.y + circle.radius + circle.velocity.y 
         >= 
-        rectangle.position.y && circle.position.x - circle.radius + circle.velocity.x 
+        rectangle.position.y - padding && circle.position.x - circle.radius + circle.velocity.x 
         <= 
-        rectangle.position.x + rectangle.width
+        rectangle.position.x + rectangle.width + padding
     )
 }
 
 
-
+let animationID
 function animate(){
-    requestAnimationFrame(animate)
+   animationID  = requestAnimationFrame(animate)
     c.clearRect(0 , 0 , canvas.width , canvas.height)
     
     if (keys.w.pressed && lastKey === 'w'){
@@ -454,8 +508,118 @@ function animate(){
 
     player.update()
 
-    //player.velocity.y = 0
-    //player.velocity.x = 0
+    ghosts.forEach(ghost => {
+        ghost.update()
+
+        if (Math.hypot(ghost.position.x-player.position.x, ghost.position.y-player.position.y) < ghost.radius+player.radius) {
+            cancelAnimationFrame(animationID)
+        }
+
+        const collisions = []
+        boundaries.forEach(boundary => {
+            if (
+                !collisions.includes('right') &&
+                circleCollidesWithRectangle({
+                    circle : {
+                        ...ghost,
+                        velocity:{
+                        x : 5,
+                        y : 0
+                        }
+                    },
+                    rectangle : boundary
+                })
+            ) {
+                collisions.push('right')
+            }
+            if (
+                !collisions.includes('left') &&
+                circleCollidesWithRectangle({
+                    circle : {
+                        ...ghost,
+                        velocity:{
+                        x : -5,
+                        y : 0
+                        }
+                    },
+                    rectangle : boundary
+                })
+            ) {
+                collisions.push('left')
+            }
+            if (
+                !collisions.includes('up') &&
+                circleCollidesWithRectangle({
+                    circle : {
+                        ...ghost,
+                        velocity:{
+                        x : 0,
+                        y : -5
+                        }
+                    },
+                    rectangle : boundary
+                })
+            ) {
+                collisions.push('up')
+            }
+            if (
+                !collisions.includes('down') &&
+                circleCollidesWithRectangle({
+                    circle : {
+                        ...ghost,
+                        velocity:{
+                        x : 0,
+                        y : 5
+                        }
+                    },
+                    rectangle : boundary
+                })
+            ) {
+                collisions.push('down')
+            } 
+        })
+        if (collisions.length > ghost.prevCollisions.length) {
+            ghost.prevCollisions = collisions
+        }
+        if(JSON.stringify(collisions) !== JSON.stringify(ghost.prevCollisions)) {
+            if(ghost.velocity.x > 0) {
+                ghost.prevCollisions.push('right')
+            }else if(ghost.velocity.x < 0) {
+                ghost.prevCollisions.push('left')
+            } else if(ghost.velocity.y < 0) {
+                ghost.prevCollisions.push('up')
+            }else if(ghost.velocity.y > 0) {
+                ghost.prevCollisions.push('down')
+            }
+
+            const pathways = ghost.prevCollisions.filter((collision) => {
+                return !collisions.includes(collision)
+            })
+
+            const direction = pathways[Math.floor(Math.random() * pathways.length)]
+
+            switch (direction) {
+                case 'down':
+                    ghost.velocity.y  = 5
+                    ghost.velocity.x  = 0
+                    break
+                case 'up':
+                    ghost.velocity.y  = -5
+                    ghost.velocity.x  = 0
+                    break    
+                case 'right':
+                    ghost.velocity.y  = 0
+                    ghost.velocity.x  = 5
+                    break
+                case 'left':
+                    ghost.velocity.y  = 0
+                    ghost.velocity.x  = -5
+                    break 
+            }
+
+            ghost.prevCollisions = []
+        }  
+    })
 }
 
 animate()
