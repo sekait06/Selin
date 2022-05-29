@@ -94,8 +94,26 @@ class Pellet{
     } 
 }
 
+class PowerUp{
+    constructor({
+        position
+    }){
+        this.position = position
+        this.radius = 10
+    }
+
+    draw(){
+        c.beginPath()
+        c.arc(this.position.x , this.position.y , this.radius, 0 , Math.PI * 2)
+        c.fillStyle = 'white'
+        c.fill()
+        c.closePath()
+    } 
+}
+
 const pellets = []
 const boundaries = []
+const powerUps = []
 const ghosts  = [
     new Ghost({
         position: {
@@ -364,6 +382,17 @@ map.forEach((row, i) => {
                     })
                 )
                 break
+
+                case '?':
+                    powerUps.push(
+                        new PowerUp({
+                            position:{
+                                x: Boundary.width * j + Boundary.width/2,
+                                y: Boundary.height * i + Boundary.height/2                            
+                            },    
+                        })
+                    )
+                    break
             case ' ' :
                 break
         }
@@ -480,8 +509,14 @@ function animate(){
             }
         }
     }
+
+    for (let i = powerUps.length - 1; 0 <= i; i--) {
+        const powerUp = powerUps[i]
+        powerUp.draw()
+    }
+
     
-    for (let i = pellets.length - 1; 0 < i; i--) {
+    for (let i = pellets.length - 1; 0 <= i; i--) {
         	const pellet = pellets[i]
             pellet.draw()   
     
