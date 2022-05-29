@@ -59,12 +59,13 @@ class Ghost{
         this.color = color
         this.prevCollisions = []
         this.speed = 2
+        this.scared = false
     }
 
     draw(){
         c.beginPath()
         c.arc(this.position.x , this.position.y , this.radius, 0 , Math.PI * 2)
-        c.fillStyle = this.color
+        c.fillStyle = this.scared ? 'blue' : this.color 
         c.fill()
         c.closePath()
     } 
@@ -99,7 +100,7 @@ class PowerUp{
         position
     }){
         this.position = position
-        this.radius = 10
+        this.radius = 8
     }
 
     draw(){
@@ -117,7 +118,7 @@ const powerUps = []
 const ghosts  = [
     new Ghost({
         position: {
-            x : Boundary.width * 6 + Boundary.width / 2,
+            x : Boundary.width * 7 + Boundary.width / 2,
             y : Boundary.height + Boundary.height /2
         },
         velocity: {
@@ -128,7 +129,7 @@ const ghosts  = [
 
     new Ghost({
         position: {
-            x : Boundary.width * 6 + Boundary.width / 2,
+            x : Boundary.width * 7 + Boundary.width / 2,
             y : Boundary.height * 3 + Boundary.height /2
         },
         velocity: {
@@ -136,7 +137,19 @@ const ghosts  = [
             y: 0
         },
         color: 'pink'
+    }),
+    new Ghost({
+        position: {
+            x : Boundary.width * 7 + Boundary.width / 2,
+            y : Boundary.height * 3 + Boundary.height /2
+        },
+        velocity: {
+            x: Ghost.speed,
+            y: 0
+        },
+        color: 'purple'
     })
+
 ]
 
 const player = new Player({
@@ -170,22 +183,19 @@ const keys = {
 let lastKey = ''
 
 const map = [
-    ['1', '-', '-' ,'-', '-','-', '-', '-', '-', '-', '-', '-', '2'],
-    ['|', '?', '?' ,'?', '?', '?', '?', '?', '?','?','?', '?', '|'],
-    ['|', '?', '[' ,']', '?', '^', '?', 'b', '?','[',']', '?', '|'],
-    ['|', '?', '?' ,'?', '?', '|', '?', '?', '?','?','?', '?', '|'],
-    ['|', '?', '?' ,'^', '?', '.', '?', '[',',', ']','?', '?', '|'],
-    ['|', '?', '[' ,')', '?', '?', '?', '?', '.','?','?', '?', '|'],
-    ['|', '?', '?' ,'.', '?', '?', '^', '?', '?','?','^', '?', '|'],
-    ['|', '?', '?' ,'?', '?', '[', '+', ']','?', '[',')', '?', '|'],
-    ['|', '?', '1' ,']', '?', '?', '.', '?','?', '?','.', '?', '|'],
-    ['|', '?', '.' ,'?', '?', '?', '?', '?','^','?', '?', '?', '|'],
-    ['|', '?', '?' ,'?', '[', ']', '?', '[','3','?', 'b', '?', '|'],
-    ['|', '?', '^' ,'?', '?', '?', '?', '?','?','?', '?', '?', '|'],
-    ['|', '?', '|' ,'?', '[', ',', ']', '?','^','?', '^', '?', '|'],
-    ['|', '?', '.' ,'?', '?', '.', '?', '?','4','-', '3', '?', '|'],
-    ['|', '?', '?' ,'?', '?', '?', '?', '?','?','?', '?', '?', '|'],
-    ['4', '-', '-','-', '-', '-', '-', '-', '-','-', '-', '-', '3']
+    [ '1' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '2'],
+    [ '|' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '|'],
+    [ '|' , '?' , '[' , ']' , '?' , 'b' , '?' , '[' , ']' , '?' , '|'],
+    [ '|' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '|'],
+    [ '|' , '?' , '^' , '?' , '1' , ']' , '?' , '[' , '2' , '?' , '|'],
+    [ '|' , '?' , '|' , '?' , '.' , '?' , '?' , '?' , '.' , '?' , '|'],
+    [ '|' , '?' , '|' , '?' , '?' , '?' , '^' , '?' , '?' , '?' , '|'],
+    [ '|' , '?' , '4' , ']' , '?' , '[' , ')' , '?' , 'b' , '?' , '|'],
+    [ '|' , '?' , '?' , '?' , '?' , '?' , '.' , '?' , '?' , '?' , '|'],
+    [ '|' , '?' , '^' , '?' , '^' , '?' , '?' , '?' , '^' , '?' , '|'],
+    [ '|' , '?' , '.' , '?' , '4' , ']' , '?' , '[' , '3' , '?' , '|'],
+    [ '|' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , 'p' , '|'],
+    [ '4' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '3']
 ]
 function createImage(src){
     const image = new Image()
@@ -383,16 +393,16 @@ map.forEach((row, i) => {
                 )
                 break
 
-                case '?':
-                    powerUps.push(
-                        new PowerUp({
-                            position:{
-                                x: Boundary.width * j + Boundary.width/2,
-                                y: Boundary.height * i + Boundary.height/2                            
-                            },    
-                        })
-                    )
-                    break
+            case 'p':
+                powerUps.push(
+                    new PowerUp({
+                        position:{
+                            x: Boundary.width * j + Boundary.width/2,
+                            y: Boundary.height * i + Boundary.height/2                            
+                        },    
+                    })
+                )
+                    break 
             case ' ' :
                 break
         }
@@ -510,9 +520,48 @@ function animate(){
         }
     }
 
+
+    // detect collision between player and ghosts
+    for (let i = ghosts.length - 1; 0 <= i; i--) {
+        const ghost = ghosts[i]
+    // ghosts touch player
+
+        if (Math.hypot(ghost.position.x-player.position.x,
+            ghost.position.y-player.position.y
+            ) < 
+            ghost.radius+player.radius
+            ) {
+            // if we touching scared ghost remove it from game
+            if (ghost.scared){
+                ghosts.splice(i, 1)
+            }else{
+                cancelAnimationFrame(animationID)
+                console.log('you lose!')
+            }
+        }
+
+    }
+    // player collides with powerup
     for (let i = powerUps.length - 1; 0 <= i; i--) {
         const powerUp = powerUps[i]
         powerUp.draw()
+
+        if (Math.hypot(
+            powerUp.position.y-player.position.y,
+            powerUp.position.x-player.position.x, 
+            ) < 
+            powerUp.radius+player.radius
+            ) {
+                powerUps.splice(i, 1)
+                // make ghosts scared
+                ghosts.forEach(ghost=>{
+                    ghost.scared = true 
+                    
+                    setTimeout(()=> {
+                        ghost.scared = false
+                    }, 5000)
+                })
+        }
     }
 
     
@@ -546,9 +595,6 @@ function animate(){
     ghosts.forEach(ghost => {
         ghost.update()
 
-        if (Math.hypot(ghost.position.x-player.position.x, ghost.position.y-player.position.y) < ghost.radius+player.radius) {
-            cancelAnimationFrame(animationID)
-        }
 
         const collisions = []
         boundaries.forEach(boundary => {
@@ -635,20 +681,20 @@ function animate(){
 
             switch (direction) {
                 case 'down':
-                    ghost.velocity.y  = 5
+                    ghost.velocity.y  = ghost.speed
                     ghost.velocity.x  = 0
                     break
                 case 'up':
-                    ghost.velocity.y  = -5
+                    ghost.velocity.y  = -ghost.speed
                     ghost.velocity.x  = 0
                     break    
                 case 'right':
                     ghost.velocity.y  = 0
-                    ghost.velocity.x  = 5
+                    ghost.velocity.x  = ghost.speed
                     break
                 case 'left':
                     ghost.velocity.y  = 0
-                    ghost.velocity.x  = -5
+                    ghost.velocity.x  = -ghost.speed
                     break 
             }
 
