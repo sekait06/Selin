@@ -1,5 +1,9 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
+
+const scoreEl = document.querySelector('#scoreEl')
+
+
 canvas.width = innerWidth
 canvas.height = innerHeight
 
@@ -11,7 +15,7 @@ class Boundary{
     static width = 40
     static height = 40
     constructor({position, image}){
-        this.position = position 
+        this.position = position
         this.width = 40
         this.height = 40
         this.image = image
@@ -26,8 +30,8 @@ class Boundary{
 
 class Player{
     constructor({
-        position, velocity
-    }){
+                    position, velocity
+                }){
         this.position = position
         this.velocity = velocity
         this.radius = 15
@@ -39,7 +43,7 @@ class Player{
         c.fillStyle = 'yellow'
         c.fill()
         c.closePath()
-    } 
+    }
 
     update(){
         this.draw()
@@ -51,8 +55,8 @@ class Player{
 class Ghost{
     static speed = 2
     constructor({
-        position, velocity, color = 'red'
-    }){
+                    position, velocity, color = 'red'
+                }){
         this.position = position
         this.velocity = velocity
         this.radius = 15
@@ -65,10 +69,10 @@ class Ghost{
     draw(){
         c.beginPath()
         c.arc(this.position.x , this.position.y , this.radius, 0 , Math.PI * 2)
-        c.fillStyle = this.scared ? 'blue' : this.color 
+        c.fillStyle = this.scared ? 'blue' : this.color
         c.fill()
         c.closePath()
-    } 
+    }
 
     update(){
         this.draw()
@@ -80,8 +84,8 @@ class Ghost{
 
 class Pellet{
     constructor({
-        position
-    }){
+                    position
+                }){
         this.position = position
         this.radius = 3
     }
@@ -92,13 +96,13 @@ class Pellet{
         c.fillStyle = 'white'
         c.fill()
         c.closePath()
-    } 
+    }
 }
 
 class PowerUp{
     constructor({
-        position
-    }){
+                    position
+                }){
         this.position = position
         this.radius = 8
     }
@@ -109,7 +113,7 @@ class PowerUp{
         c.fillStyle = 'white'
         c.fill()
         c.closePath()
-    } 
+    }
 }
 
 const pellets = []
@@ -162,7 +166,7 @@ const player = new Player({
         y : 0
     }
     // "Comment"
-}) 
+})
 
 const keys = {
     w : {
@@ -181,7 +185,7 @@ const keys = {
 }
 
 let lastKey = ''
-
+let score = 0
 const map = [
     [ '1' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '-' , '2'],
     [ '|' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '?' , '|'],
@@ -212,7 +216,7 @@ map.forEach((row, i) => {
                         position:{
                             x: Boundary.width * j,
                             y: Boundary.height * i
-                        }, 
+                        },
                         image : createImage('./img/pipeHorizontal.png')
                     })
                 )
@@ -222,8 +226,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeVertical.png')
                     })
                 )
@@ -231,32 +235,32 @@ map.forEach((row, i) => {
             case '1':
                 boundaries.push(
                     new Boundary({
-                        position:{                                
+                        position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeCorner1.png')
                     })
                 )
                 break
             case '2':
-                    boundaries.push(
-                        new Boundary({
-                            position:{
-                                x: Boundary.width * j,
-                                y: Boundary.height * i                            
-                            },    
-                            image : createImage('./img/pipeCorner2.png')
-                        })
-                    )
-                    break
+                boundaries.push(
+                    new Boundary({
+                        position:{
+                            x: Boundary.width * j,
+                            y: Boundary.height * i
+                        },
+                        image : createImage('./img/pipeCorner2.png')
+                    })
+                )
+                break
             case '3':
                 boundaries.push(
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeCorner3.png')
                     })
                 )
@@ -266,8 +270,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeCorner4.png')
                     })
                 )
@@ -277,8 +281,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/block.png')
                     })
                 )
@@ -288,8 +292,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/capBottom.png')
                     })
                 )
@@ -299,8 +303,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/capTop.png')
                     })
                 )
@@ -310,8 +314,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/capLeft.png')
                     })
                 )
@@ -321,8 +325,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/capRight.png')
                     })
                 )
@@ -332,8 +336,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeConnectorRight.png')
                     })
                 )
@@ -343,8 +347,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeCross.png')
                     })
                 )
@@ -354,8 +358,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeConnectorLeft.png')
                     })
                 )
@@ -365,8 +369,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeConnectorTop.png')
                     })
                 )
@@ -376,8 +380,8 @@ map.forEach((row, i) => {
                     new Boundary({
                         position:{
                             x: Boundary.width * j,
-                            y: Boundary.height * i                            
-                        },    
+                            y: Boundary.height * i
+                        },
                         image : createImage('./img/pipeConnectorBottom.png')
                     })
                 )
@@ -387,8 +391,8 @@ map.forEach((row, i) => {
                     new Pellet({
                         position:{
                             x: Boundary.width * j + Boundary.width/2,
-                            y: Boundary.height * i + Boundary.height/2                            
-                        },    
+                            y: Boundary.height * i + Boundary.height/2
+                        },
                     })
                 )
                 break
@@ -398,11 +402,11 @@ map.forEach((row, i) => {
                     new PowerUp({
                         position:{
                             x: Boundary.width * j + Boundary.width/2,
-                            y: Boundary.height * i + Boundary.height/2                            
-                        },    
+                            y: Boundary.height * i + Boundary.height/2
+                        },
                     })
                 )
-                    break 
+                break
             case ' ' :
                 break
         }
@@ -410,19 +414,19 @@ map.forEach((row, i) => {
 })
 
 function circleCollidesWithRectangle({
-    circle,
-    rectangle
-}) {
+                                         circle,
+                                         rectangle
+                                     }) {
     const padding = Boundary.width / 2 - circle.radius - 1
-    return ( 
-        circle.position.y - circle.radius + circle.velocity.y 
-        <= 
-        rectangle.position.y + rectangle.height + padding && circle.position.x + circle.radius + circle.velocity.x 
-        >= 
-        rectangle.position.x - padding && circle.position.y + circle.radius + circle.velocity.y 
-        >= 
-        rectangle.position.y - padding && circle.position.x - circle.radius + circle.velocity.x 
-        <= 
+    return (
+        circle.position.y - circle.radius + circle.velocity.y
+        <=
+        rectangle.position.y + rectangle.height + padding && circle.position.x + circle.radius + circle.velocity.x
+        >=
+        rectangle.position.x - padding && circle.position.y + circle.radius + circle.velocity.y
+        >=
+        rectangle.position.y - padding && circle.position.x - circle.radius + circle.velocity.x
+        <=
         rectangle.position.x + rectangle.width + padding
     )
 }
@@ -430,9 +434,9 @@ function circleCollidesWithRectangle({
 
 let animationID
 function animate(){
-   animationID  = requestAnimationFrame(animate)
+    animationID  = requestAnimationFrame(animate)
     c.clearRect(0 , 0 , canvas.width , canvas.height)
-    
+
     if (keys.w.pressed && lastKey === 'w'){
         for (let i = 0 ; i < boundaries.length ; i++){
             const boundary = boundaries[i]
@@ -441,8 +445,8 @@ function animate(){
                     circle : {
                         ...player,
                         velocity:{
-                        x : 0,
-                        y : -5
+                            x : 0,
+                            y : -5
                         }
                     },
                     rectangle : boundary
@@ -455,7 +459,7 @@ function animate(){
             }
         }
 
-    } else if ( keys.a.pressed && lastKey === 'a'){  
+    } else if ( keys.a.pressed && lastKey === 'a'){
         for (let i = 0 ; i < boundaries.length ; i++){
             const boundary = boundaries[i]
             if (
@@ -463,8 +467,8 @@ function animate(){
                     circle : {
                         ...player,
                         velocity:{
-                        x : -5,
-                        y : 0
+                            x : -5,
+                            y : 0
                         }
                     },
                     rectangle : boundary
@@ -484,8 +488,8 @@ function animate(){
                     circle : {
                         ...player,
                         velocity:{
-                        x : 0,
-                        y : 5
+                            x : 0,
+                            y : 5
                         }
                     },
                     rectangle : boundary
@@ -505,8 +509,8 @@ function animate(){
                     circle : {
                         ...player,
                         velocity:{
-                        x : 5,
-                        y : 0
+                            x : 5,
+                            y : 0
                         }
                     },
                     rectangle : boundary
@@ -524,13 +528,13 @@ function animate(){
     // detect collision between player and ghosts
     for (let i = ghosts.length - 1; 0 <= i; i--) {
         const ghost = ghosts[i]
-    // ghosts touch player
+        // ghosts touch player
 
         if (Math.hypot(ghost.position.x-player.position.x,
-            ghost.position.y-player.position.y
-            ) < 
+                ghost.position.y-player.position.y
+            ) <
             ghost.radius+player.radius
-            ) {
+        ) {
             // if we touching scared ghost remove it from game
             if (ghost.scared){
                 ghosts.splice(i, 1)
@@ -547,32 +551,34 @@ function animate(){
         powerUp.draw()
 
         if (Math.hypot(
-            powerUp.position.y-player.position.y,
-            powerUp.position.x-player.position.x, 
-            ) < 
+                powerUp.position.y-player.position.y,
+                powerUp.position.x-player.position.x,
+            ) <
             powerUp.radius+player.radius
-            ) {
-                powerUps.splice(i, 1)
-                // make ghosts scared
-                ghosts.forEach(ghost=>{
-                    ghost.scared = true 
-                    
-                    setTimeout(()=> {
-                        ghost.scared = false
-                    }, 5000)
-                })
+        ) {
+            powerUps.splice(i, 1)
+            // make ghosts scared
+            ghosts.forEach(ghost=>{
+                ghost.scared = true
+
+                setTimeout(()=> {
+                    ghost.scared = false
+                }, 5000)
+            })
         }
     }
 
-    
+//touch pallets here
     for (let i = pellets.length - 1; 0 <= i; i--) {
-        	const pellet = pellets[i]
-            pellet.draw()   
-    
-         if (Math.hypot(pellet.position.x-player.position.x, pellet.position.y-player.position.y) < pellet.radius+player.radius) {
-             console.log('touching')
-             pellets.splice(i, 1)
-         }
+        const pellet = pellets[i]
+        pellet.draw()
+
+        if (Math.hypot(pellet.position.x-player.position.x, pellet.position.y-player.position.y) < pellet.radius+player.radius) {
+            console.log('touching')
+            pellets.splice(i, 1)
+            score +=10
+            scoreEl.innerHTML = score
+        }
     }
 
     boundaries.forEach((boundary)=>{
@@ -587,7 +593,7 @@ function animate(){
             player.velocity.x = 0
             player.velocity.y = 0
         }
-        
+
     })
 
     player.update()
@@ -604,8 +610,8 @@ function animate(){
                     circle : {
                         ...ghost,
                         velocity:{
-                        x : 5,
-                        y : 0
+                            x : 5,
+                            y : 0
                         }
                     },
                     rectangle : boundary
@@ -619,8 +625,8 @@ function animate(){
                     circle : {
                         ...ghost,
                         velocity:{
-                        x : -5,
-                        y : 0
+                            x : -5,
+                            y : 0
                         }
                     },
                     rectangle : boundary
@@ -634,8 +640,8 @@ function animate(){
                     circle : {
                         ...ghost,
                         velocity:{
-                        x : 0,
-                        y : -5
+                            x : 0,
+                            y : -5
                         }
                     },
                     rectangle : boundary
@@ -649,15 +655,15 @@ function animate(){
                     circle : {
                         ...ghost,
                         velocity:{
-                        x : 0,
-                        y : 5
+                            x : 0,
+                            y : 5
                         }
                     },
                     rectangle : boundary
                 })
             ) {
                 collisions.push('down')
-            } 
+            }
         })
         if (collisions.length > ghost.prevCollisions.length) {
             ghost.prevCollisions = collisions
@@ -687,7 +693,7 @@ function animate(){
                 case 'up':
                     ghost.velocity.y  = -ghost.speed
                     ghost.velocity.x  = 0
-                    break    
+                    break
                 case 'right':
                     ghost.velocity.y  = 0
                     ghost.velocity.x  = ghost.speed
@@ -695,18 +701,18 @@ function animate(){
                 case 'left':
                     ghost.velocity.y  = 0
                     ghost.velocity.x  = -ghost.speed
-                    break 
+                    break
             }
 
             ghost.prevCollisions = []
-        }  
+        }
     })
 }
 
 animate()
 
 window.addEventListener('keydown', ({key})=>{
-    
+
     switch ( key ){
         case 'w':
             keys.w.pressed = true
@@ -728,7 +734,7 @@ window.addEventListener('keydown', ({key})=>{
 })
 
 window.addEventListener('keyup', ({key})=>{
-    
+
     switch ( key ){
         case 'w':
             keys.w.pressed = false
