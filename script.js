@@ -524,6 +524,11 @@ function animate(){
         }
     }
 
+    // win condition
+    if (pellets.length === 0) {
+        console.log('Stage Clear')
+        cancelAnimationFrame(animationID)
+    }
 
     // detect collision between player and ghosts
     for (let i = ghosts.length - 1; 0 <= i; i--) {
